@@ -11,6 +11,7 @@ import org.java_websocket.WebSocket;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.smsserver.server.ContactsService;
+import com.smsserver.server.SMSContact;
 import com.smsserver.server.SMSMessage;
 
 import android.content.ContentResolver;
@@ -33,11 +34,17 @@ public class GetMessagesHandler extends VoidMessageHandler {
 			Log.i("sms", "Getting contact name for: " + phoneNumber);
 			phoneNumber = phoneNumber.replaceAll("-|\\s|\\(|\\)|\\+1", "");
 			
-			for (Map.Entry<String, String> entry : contacts.getContacts().entrySet()) {
-				if (entry.getKey().contains(phoneNumber)) {
-					foundName = entry.getValue();
-					Log.i("sms:contactLookup:found", foundName);
-					break;
+			for (Map.Entry<String, SMSContact> entry : contacts.getContacts().entrySet()) {
+				
+				SMSContact currentContact = entry.getValue();
+				
+				for (int i = 0; i < currentContact.getAddresses().size(); i++) {
+					
+					if (currentContact.getAddresses().get(i).contains(phoneNumber)) {
+						foundName = entry.getValue().getName();
+						Log.i("sms:contactLookup:found", foundName);
+						break;
+					}
 				}
 			}
 		}

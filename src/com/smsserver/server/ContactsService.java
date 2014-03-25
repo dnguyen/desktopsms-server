@@ -10,21 +10,24 @@ import android.util.Log;
 
 public class ContactsService {
 	private ContentResolver content;
-	private Map<String, String> contacts;
+	private Map<String, SMSContact> contacts;
 	
 	public ContactsService(ContentResolver content) {
 		this.content = content;
-		this.contacts = new HashMap<String, String>();
+		this.contacts = new HashMap<String, SMSContact>();
 		this.load();
 	}
 	
 	public void load() {
+		String id, name, image_uri;
 		Cursor cursor = content.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+		
 		if (cursor.getCount() > 0) {
 			// First get the contact ids
 			while (cursor.moveToNext()) {
-				String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-				String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+				id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+				name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+				image_uri = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
 				
 				Cursor phoneCursor = content.query(
 						ContactsContract.CommonDataKinds.Phone.CONTENT_URI, 
@@ -38,7 +41,15 @@ public class ContactsService {
 					String number = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 					
 					number = number.replaceAll("-|\\s|\\(|\\)|\\+1", "");
-					contacts.put(number, name);
+					
+					// If contact was already added, add a new phone number for that contact.
+					if (contacts.containsKey(name)) {
+						contacts.get(name).getAddresses().add(number);
+					} else {
+						SMSContact newContact = new SMSContact(name);
+						newContact.getAddresses().add(number);
+						contacts.put(name, newContact);
+					}
 					Log.i("sms:contacts", ""+name + " :: " + number);
 				}
 				phoneCursor.close();
@@ -48,7 +59,7 @@ public class ContactsService {
 		}
 	}
 	
-	public Map<String, String> getContacts() {
+	public Map<String, SMSContact> getContacts() {
 		return this.contacts;
 	}
 }
