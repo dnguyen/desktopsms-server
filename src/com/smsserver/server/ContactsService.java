@@ -59,6 +59,31 @@ public class ContactsService {
 		}
 	}
 	
+	public SMSContact findByNumber(String phoneNumber) {
+		SMSContact foundContact = null;
+		
+		if (phoneNumber != null) {
+			Log.i("sms", "Getting contact name for: " + phoneNumber);
+			phoneNumber = phoneNumber.replaceAll("-|\\s|\\(|\\)|\\+1", "");
+			
+			for (Map.Entry<String, SMSContact> entry : contacts.entrySet()) {
+				
+				SMSContact currentContact = entry.getValue();
+				
+				for (int i = 0; i < currentContact.getAddresses().size(); i++) {
+					
+					if (currentContact.getAddresses().get(i).contains(phoneNumber)) {
+						foundContact = entry.getValue();
+						//Log.i("sms:contactLookup:found", foundName);
+						break;
+					}
+				}
+			}
+		}
+		
+		return foundContact;
+	}
+	
 	public Map<String, SMSContact> getContacts() {
 		return this.contacts;
 	}

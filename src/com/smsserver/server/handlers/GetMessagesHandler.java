@@ -27,30 +27,6 @@ public class GetMessagesHandler extends VoidMessageHandler {
 		super(content);
 		this.contacts = contacts;
 	}
-
-	private String getContactNameByNumber(String phoneNumber) {
-		String foundName = "";
-		if (phoneNumber != null) {
-			Log.i("sms", "Getting contact name for: " + phoneNumber);
-			phoneNumber = phoneNumber.replaceAll("-|\\s|\\(|\\)|\\+1", "");
-			
-			for (Map.Entry<String, SMSContact> entry : contacts.getContacts().entrySet()) {
-				
-				SMSContact currentContact = entry.getValue();
-				
-				for (int i = 0; i < currentContact.getAddresses().size(); i++) {
-					
-					if (currentContact.getAddresses().get(i).contains(phoneNumber)) {
-						foundName = entry.getValue().getName();
-						Log.i("sms:contactLookup:found", foundName);
-						break;
-					}
-				}
-			}
-		}
-		
-		return foundName;
-	}
 	
 	@Override
 	public void handleMessage(WebSocket conn) {
@@ -58,9 +34,9 @@ public class GetMessagesHandler extends VoidMessageHandler {
 		
 		Cursor cursor = content.query(Uri.parse("content://sms/"), null, null, null, null);
 		int smsCount = cursor.getCount();
-		Log.i("sms", "columns");
+		Log.i("sms:columns", "columns");
 		for (int i = 0; i < cursor.getColumnCount(); i++) {
-			Log.i("sms", cursor.getColumnName(i).toString());
+			Log.i("sms:columns", cursor.getColumnName(i).toString());
 		}
 		if (cursor.moveToFirst()) {
 			for (int i = 0; i < smsCount; i++) {
@@ -85,10 +61,19 @@ public class GetMessagesHandler extends VoidMessageHandler {
 		sms.setId(cursor.getString(cursor.getColumnIndexOrThrow("_id")));
 		sms.setThreadId(cursor.getString(cursor.getColumnIndexOrThrow("thread_id")));
 		sms.setAddress(cursor.getString(cursor.getColumnIndexOrThrow("address")));
-		sms.setName(this.getContactNameByNumber(sms.getAddress()));
+		
+		SMSContact contact = contacts.findByNumber(sms.getAddress());
+		if (contact != null) {
+			sms.setName(contact.getName());
+		} else {
+			sms.setName("");
+		}
+		
 		sms.setMessage(cursor.getString(cursor.getColumnIndexOrThrow("body")));
 		sms.setTime(cursor.getString(cursor.getColumnIndexOrThrow("date")));
 		sms.setType(cursor.getString(cursor.getColumnIndexOrThrow("type")));
+		sms.setRead(cursor.getString(cursor.getColumnIndexOrThrow("read")));
+		sms.setProtocol(cursor.getString(cursor.getColumnIndexOrThrow("protocol")));
 		
 		return sms;
 	}

@@ -10,6 +10,8 @@ public class SMSMessage {
 	private String time;
 	private String folder;
 	private String msgtype;
+	private String read;
+	private String protocol;
 	
 	public SMSMessage() {
 		
@@ -77,5 +79,21 @@ public class SMSMessage {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getRead() {
+		return read;
+	}
+
+	public void setRead(String read) {
+		this.read = read;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
 	}
 }

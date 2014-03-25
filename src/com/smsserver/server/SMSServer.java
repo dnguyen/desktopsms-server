@@ -30,9 +30,9 @@ import android.net.Uri;
 import android.util.Log;
 
 public class SMSServer extends WebSocketServer {
+	private Map<Integer, WebSocket> sockets;
 	ContentResolver content;
 	ContactsService contacts;
-	int counter = 0;
 	
 	private Map<String, VoidMessageHandler> voidMessageHandlers;
 	private Map<String, DataMessageHandler> dataMessageHandlers;
@@ -43,10 +43,13 @@ public class SMSServer extends WebSocketServer {
 	
 	public SMSServer(InetSocketAddress address, Draft d, ContentResolver content) {
 		super(address, Collections.singletonList(d));
+		
 		this.content = content;
 		this.dataMessageHandlers = new HashMap<String, DataMessageHandler>();
 		this.voidMessageHandlers = new HashMap<String, VoidMessageHandler>();
 		this.contacts = new ContactsService(content);
+		this.sockets = new HashMap<Integer, WebSocket>();
+		
 		setupHandlers();
 	}
 
@@ -59,18 +62,19 @@ public class SMSServer extends WebSocketServer {
 	
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		counter++;
-		Log.i("sms", "///////////Opened connection number" + counter);
+		this.sockets.put(conn.hashCode(), conn);
+		Log.i("sms:socket", "Opened connection number for " + conn.hashCode());
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		Log.i("sms", "closed");
+		Log.i("sms:socket", "Closed socket for " + conn.hashCode());
+		this.sockets.remove(conn.hashCode());
 	}
 
 	@Override
 	public void onError(WebSocket conn, Exception ex) {
-		Log.i("sms", "Error:");
+		Log.i("sms", "Error:" + ex.getMessage());
 		ex.printStackTrace();
 	}
 
@@ -106,7 +110,7 @@ public class SMSServer extends WebSocketServer {
 
 	@Override
 	public void onMessage(WebSocket conn, ByteBuffer blob) {
-		Log.i("sms:onMessageBlog", "Buffer Capacity: " + blob.capacity());
+		Log.i("sms:onMessageBlob", "Buffer Capacity: " + blob.capacity());
 		conn.send(blob);
 	}
 
