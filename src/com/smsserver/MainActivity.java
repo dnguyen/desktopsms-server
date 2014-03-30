@@ -1,18 +1,11 @@
 package com.smsserver;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-
-import org.java_websocket.drafts.Draft_17;
-
 import com.example.smsserver.R;
-import com.smsserver.server.SMSServer;
 import com.smsserver.utilities.Utils;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,25 +13,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
-
+	Intent smsServiceIntent;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.i("sms", "Test log");
         Log.i("sms", Utils.getIPAddress(true));
-        
-		int port;
-		new SMSServer( new InetSocketAddress(Utils.getIPAddress(true), 9003), new Draft_17(), this.getContentResolver() ).start();
 		
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+        this.smsServiceIntent = new Intent(this, SmsService.class);
+        
+        this.startService(smsServiceIntent);
     }
 
 
@@ -76,6 +70,28 @@ public class MainActivity extends ActionBarActivity {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             return rootView;
         }
+    }
+    
+    @Override
+    protected void onStop() {
+    	super.onStop();
+    }
+    
+    @Override
+    protected void onPause() {
+    	super.onPause();
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    }
+    
+    @Override
+    protected void onResume() {
+    	//this.smsServer.registerObservers();
+        //this.startService(this.smsServiceIntent);
+    	super.onResume();
     }
 
 }

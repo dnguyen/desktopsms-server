@@ -1,11 +1,7 @@
 package com.smsserver.server.handlers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
 import org.java_websocket.WebSocket;
 
 import com.google.gson.Gson;
@@ -49,7 +45,7 @@ public class GetMessagesHandler extends VoidMessageHandler {
 		Gson gson = new Gson();
 		String messages = gson.toJson(smsList, new TypeToken<ArrayList<SMSMessage>>(){}.getType());
 		
-		conn.send(messages);
+		conn.send("getMessages:" + messages);
 	}
 	
 	/*

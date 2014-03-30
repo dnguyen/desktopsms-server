@@ -9,7 +9,7 @@ public class SMSMessage {
 	private String message;
 	private String time;
 	private String folder;
-	private String msgtype;
+	private String type;
 	private String read;
 	private String protocol;
 	
@@ -23,7 +23,7 @@ public class SMSMessage {
 		this.message = msg;
 		this.time = time;
 		this.folder = folder;
-		this.msgtype = type;
+		this.type = type;
 	}
 	
 	public String getId() {
@@ -66,11 +66,11 @@ public class SMSMessage {
 	}
 
 	public String getType() {
-		return msgtype;
+		return type;
 	}
 
 	public void setType(String type) {
-		this.msgtype = type;
+		this.type = type;
 	}
 
 	public String getName() {

@@ -3,34 +3,29 @@ package com.smsserver.server;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.WebSocketImpl;
 import org.java_websocket.drafts.Draft;
-import org.java_websocket.drafts.Draft_17;
 import org.java_websocket.framing.FrameBuilder;
 import org.java_websocket.framing.Framedata;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.smsserver.server.handlers.DataMessageHandler;
 import com.smsserver.server.handlers.GetMessagesHandler;
+import com.smsserver.server.handlers.SendSMSHandler;
 import com.smsserver.server.handlers.VoidMessageHandler;
 
 import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 
 public class SMSServer extends WebSocketServer {
-	private Map<Integer, WebSocket> sockets;
+	// Static is bad...can't see any other way around it.
+	// SmsReceiver needs access to the sockets to send incoming sms messages
+	public static Map<Integer, WebSocket> sockets;
 	ContentResolver content;
 	ContactsService contacts;
 	
@@ -49,15 +44,20 @@ public class SMSServer extends WebSocketServer {
 		this.voidMessageHandlers = new HashMap<String, VoidMessageHandler>();
 		this.contacts = new ContactsService(content);
 		this.sockets = new HashMap<Integer, WebSocket>();
-		
+    	
 		setupHandlers();
 	}
 
+	public void close() {
+		Log.i("sms", "Closing SMSServer");
+	}
+	
 	/**
 	 * Map our message headers to our handlers
 	 */
 	private void setupHandlers() {
 		this.voidMessageHandlers.put("getMessages", new GetMessagesHandler(this.content, this.contacts));
+		this.dataMessageHandlers.put("sendSMS", new SendSMSHandler());
 	}
 	
 	@Override
@@ -111,7 +111,6 @@ public class SMSServer extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket conn, ByteBuffer blob) {
 		Log.i("sms:onMessageBlob", "Buffer Capacity: " + blob.capacity());
-		conn.send(blob);
 	}
 
 	public void onWebsocketMessageFragment( WebSocket conn, Framedata frame ) {
