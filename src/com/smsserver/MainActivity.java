@@ -30,7 +30,7 @@ public class MainActivity extends ActionBarActivity {
                     .commit();
         }
 
-        this.smsServiceIntent = new Intent(this, SmsService.class);
+        this.smsServiceIntent = new Intent(this, SMSService.class);
         
         this.startService(smsServiceIntent);
     }

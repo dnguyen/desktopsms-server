@@ -17,6 +17,7 @@ import org.java_websocket.server.WebSocketServer;
 import com.smsserver.server.handlers.DataMessageHandler;
 import com.smsserver.server.handlers.GetMessagesHandler;
 import com.smsserver.server.handlers.SendSMSHandler;
+import com.smsserver.server.handlers.UpdateSMSStatusHandler;
 import com.smsserver.server.handlers.VoidMessageHandler;
 
 import android.content.ContentResolver;
@@ -57,7 +58,9 @@ public class SMSServer extends WebSocketServer {
 	 */
 	private void setupHandlers() {
 		this.voidMessageHandlers.put("getMessages", new GetMessagesHandler(this.content, this.contacts));
-		this.dataMessageHandlers.put("sendSMS", new SendSMSHandler());
+		
+		this.dataMessageHandlers.put("sendSMS", new SendSMSHandler(this.content));
+		this.dataMessageHandlers.put("updateUnread", new UpdateSMSStatusHandler(this.content));
 	}
 	
 	@Override

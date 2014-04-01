@@ -15,7 +15,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-public class SmsService extends Service {
+public class SMSService extends Service {
 	
 	private SMSServer smsServer;
 	private ContactsService contacts;

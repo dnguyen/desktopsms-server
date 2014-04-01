@@ -72,7 +72,7 @@ public class ContactsService {
 				
 				for (int i = 0; i < currentContact.getAddresses().size(); i++) {
 					
-					if (currentContact.getAddresses().get(i).contains(phoneNumber)) {
+					if (currentContact.getAddresses().get(i).equals(phoneNumber)) {
 						foundContact = entry.getValue();
 						//Log.i("sms:contactLookup:found", foundName);
 						break;
